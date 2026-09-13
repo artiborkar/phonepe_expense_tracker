@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhonePe Expense Intelligence</title>
+  <link rel="icon" type="image/png" href="assets/phonepe-logo.png">
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+  <div class="app-wrapper">
+    <!-- 1. Header Toolbar -->
+    <header class="app-header">
+      <div class="brand-section">
+        <div class="brand-logo-box">
+          <img src="assets/phonepe-logo.png" alt="PhonePe Logo" onerror="this.onerror=null; this.src='assets/phonepe-logo.svg'" class="brand-logo-img">
+        </div>
+        <div class="brand-titles">
+          <div class="brand-title-row">
+            <h1>PhonePe Expense Intelligence</h1>
+            <span class="pro-badge">PRO DESKTOP</span>
+          </div>
+          <span class="brand-subtitle">Automated statement analytics & budget intelligence</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Budget Display Pill -->
+        <button class="header-budget-pill" id="headerBudgetBtn" title="Click to modify budget threshold">
+          <span>🏷️</span>
+          <span id="headerBudgetLabel">Budget: ₹10,000</span>
+          <span>✏️</span>
+        </button>
+
+        <!-- Load Demo Button -->
+        <button class="btn btn-dark" id="loadDemoBtn">
+          <span>✨</span>
+          <span>Load Demo</span>
+        </button>
+
+        <!-- Upload File Button -->
+        <button class="btn btn-primary" id="headerUploadBtn">
+          <span>☁️</span>
+          <span>Upload File</span>
+        </button>
+
+        <!-- Export CSV Button -->
+        <button class="btn btn-dark" id="exportCsvBtn">
+          <span>📊</span>
+          <span>Export CSV</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 2. Main Dashboard Container -->
+    <main class="main-dashboard">
+      
+      <!-- Top Alert Banner: Exceeded Warning -->
+      <section id="budgetAlertBanner" class="budget-alert-banner">
+        <div class="alert-left-content">
+          <div class="alert-shield-icon">🛡️</div>
+          <div class="alert-text-block">
+            <span class="alert-title" id="alertTitleText">Monthly Budget Limit Exceeded!</span>
+            <span class="alert-desc" id="alertDescText">
+              Your expenses have surpassed your ₹10,000 threshold by <strong>₹9,060.00</strong>
+            </span>
+          </div>
+        </div>
+        <button class="btn-adjust-budget" id="adjustBudgetBtn">
+          Adjust Budget Limit
+        </button>
+      </section>
+
+      <!-- Drag & Drop Statement Dropzone -->
+      <section class="statement-dropzone" id="fileDropzone">
+        <input type="file" id="hiddenFileInput" accept=".txt,.csv" style="display: none;">
+        <div class="dropzone-cloud-icon">☁️</div>
+        <div class="dropzone-main-text">Drag & drop transaction.txt or click to browse</div>
+        <div class="dropzone-sub-text">
+          Supports PhonePe statement formats <code>YYYY-MM-DD, Merchant, Amount</code> or CSV files.
+        </div>
+        <div class="dropzone-btn-group">
+          <button class="btn btn-primary btn-sm" id="browseFileBtn">
+            Select Statement File
+          </button>
+          <button class="btn btn-dark btn-sm" id="sampleStatementBtn">
+            ✨ Try with Sample Statement
+          </button>
+        </div>
+      </section>
+
+      <!-- 4 KPI Metrics Row -->
+      <section class="metrics-row" id="metricsRowContainer">
+        <!-- Rendered dynamically by metrics.js -->
+      </section>
+
+      <!-- Middle Visual Analytics Row -->
+      <section class="analytics-row">
+        <!-- Card 1: Monthly Budget Velocity (Radial Meter) -->
+        <div class="panel-box velocity-card">
+          <div class="panel-header-row">
+            <div>
+              <div class="panel-title">Monthly Budget Velocity</div>
+              <div class="panel-subtitle">Target threshold vs current expenditure</div>
+            </div>
+            <a class="panel-action-link" id="changeLimitLink">Change Limit</a>
+          </div>
+
+          <div class="radial-meter-container">
+            <div class="radial-svg-box">
+              <svg width="155" height="155" viewBox="0 0 170 170">
+                <circle cx="85" cy="85" r="68" fill="none" stroke="#151C2C" stroke-width="12" />
+                <circle id="radialProgressBar" cx="85" cy="85" r="68" fill="none" stroke="#FF4757" stroke-width="12" 
+                        stroke-dasharray="427.2" stroke-dashoffset="0" stroke-linecap="round"
+                        transform="rotate(-90 85 85)" style="transition: stroke-dashoffset 0.6s ease;" />
+              </svg>
+              <div class="radial-center-text">
+                <span class="radial-pct-number" id="radialPctValue">191%</span>
+                <span class="radial-status-tag" id="radialStatusTag">EXCEEDED</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Warning Pill inside Velocity Card -->
+          <div class="velocity-bottom-badge" id="velocityBottomBadge">
+            <span>⚠️</span>
+            <span>Exceeded limit by ₹9,060.00</span>
+          </div>
+        </div>
+
+        <!-- Card 2: Category Breakdown (Donut + Progress Bars) -->
+        <div class="panel-box">
+          <div class="panel-header-row">
+            <div>
+              <div class="panel-title">Category Breakdown</div>
+              <div class="panel-subtitle">Spending distribution across categories</div>
+            </div>
+            <span class="pro-badge" id="categoryCountBadge">6 Categories</span>
+          </div>
+
+          <div class="breakdown-grid">
+            <div class="donut-chart-wrapper">
+              <canvas id="categoryDonutChart"></canvas>
+              <div class="donut-center-info">
+                <span class="donut-center-label">Total</span>
+                <span class="donut-center-total" id="donutCenterTotal">₹19.1k</span>
+              </div>
+            </div>
+
+            <div class="category-bar-list" id="categoryBarsList">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Bottom Row: Daily Spending Velocity & AI Smart Insights -->
+      <section class="bottom-row">
+        <!-- Daily Spending Velocity Vertical Bar Chart -->
+        <div class="panel-box">
+          <div class="panel-header-row">
+            <div>
+              <div class="panel-title">Daily Spending Velocity</div>
+              <div class="panel-subtitle">Day-by-day expenditure timeline</div>
+            </div>
+            <span style="font-size: 0.75rem; color: #9D74FF; display: flex; align-items: center; gap: 4px;">
+              ● Daily Spend (₹)
+            </span>
+          </div>
+
+          <div class="daily-bar-chart-container" id="dailyBarChartContainer">
+            <!-- Dynamically populated vertical bars -->
+          </div>
+        </div>
+
+        <!-- AI & Smart Expense Insights -->
+        <div class="panel-box">
+          <div class="panel-header-row">
+            <div>
+              <div class="panel-title" style="display: flex; align-items: center; gap: 6px;">
+                <span style="color: #FBBF24;">✨</span>
+                <span>AI & Smart Expense Insights</span>
+              </div>
+              <div class="panel-subtitle">Key takeaways calculated from your PhonePe transaction pattern</div>
+            </div>
+          </div>
+
+          <div class="insights-grid" id="insightsGridContainer">
+            <!-- Dynamically populated 2x2 insights -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Transaction Ledger (Full Interactive Data Grid) -->
+      <section class="panel-box ledger-panel" id="transactionLedgerSection">
+        <div class="ledger-header-row">
+          <div class="ledger-title-group">
+            <div class="ledger-title-badge-row">
+              <div class="ledger-icon-box">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+              </div>
+              <h2 class="panel-title">Transaction Ledger</h2>
+              <span class="ledger-count-pill" id="ledgerCountPill">0 of 0</span>
+            </div>
+            <div class="panel-subtitle">Search, filter, and inspect individual expense entries</div>
+          </div>
+
+          <div class="ledger-search-box">
+            <span class="ledger-search-icon">🔍</span>
+            <input type="text" id="tableSearchInput" placeholder="Search merchant, date..." class="ledger-search-input" autocomplete="off">
+          </div>
+        </div>
+
+        <!-- Filter Pills Bar -->
+        <div class="filter-pills-bar">
+          <span class="filter-icon-label" title="Filter Categories">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+          </span>
+          <div class="category-pills-container" id="categoryPillsContainer">
+            <button class="cat-pill active" data-category="all">ALL</button>
+            <button class="cat-pill" data-category="Food">Food</button>
+            <button class="cat-pill" data-category="Travel">Travel</button>
+            <button class="cat-pill" data-category="Shopping">Shopping</button>
+            <button class="cat-pill" data-category="Bills">Bills</button>
+            <button class="cat-pill" data-category="Health">Health</button>
+            <button class="cat-pill" data-category="Store">Store</button>
+          </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="ledger-table-wrapper">
+          <table class="ledger-table">
+            <thead>
+              <tr>
+                <th class="sortable-th" data-sort="date">
+                  <span>DATE</span>
+                  <span class="sort-indicator" id="sortDate">⇅</span>
+                </th>
+                <th class="sortable-th" data-sort="merchant">
+                  <span>MERCHANT / DESCRIPTION</span>
+                  <span class="sort-indicator" id="sortMerchant">⇅</span>
+                </th>
+                <th class="sortable-th" data-sort="category">
+                  <span>CATEGORY</span>
+                  <span class="sort-indicator" id="sortCategory">⇅</span>
+                </th>
+                <th class="sortable-th text-right" data-sort="amount">
+                  <span>AMOUNT (₹)</span>
+                  <span class="sort-indicator" id="sortAmount">⇅</span>
+                </th>
+                <th class="text-right">STATUS</th>
+              </tr>
+            </thead>
+            <tbody id="transactionsTableBody">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination & Summary Footer -->
+        <div class="ledger-footer-row">
+          <div class="ledger-pagination-info" id="tablePaginationInfo">
+            Showing 0 to 0 of 0 transactions
+          </div>
+          <div class="ledger-pagination-controls">
+            <button class="btn-page" id="prevPageBtn" title="Previous Page">‹</button>
+            <span class="page-indicator" id="pageIndicatorText">1 / 1</span>
+            <button class="btn-page" id="nextPageBtn" title="Next Page">›</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 5. App Footer & Copyright -->
+    <footer class="app-footer">
+      <div class="footer-inner">
+        <div class="footer-left">
+          <div class="footer-brand">
+            <span class="footer-dot"></span>
+            <span class="footer-brand-title">PhonePe Expense Intelligence</span>
+          </div>
+          <p class="footer-copyright">
+            © 2026 PhonePe Expense Intelligence. All Rights Reserved.
+          </p>
+        </div>
+
+        <div class="footer-center">
+          <div class="footer-author-badge">
+            <span class="author-icon">⚡</span>
+            <span>App Built by <strong class="author-name">Arti Borkar</strong></span>
+          </div>
+        </div>
+
+        <div class="footer-right">
+          <span class="footer-tag">🛡️ 100% Offline & Private</span>
+          <span class="footer-version">v1.0.0 PRO</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Budget Adjustment Modal -->
+  <div class="modal-overlay" id="budgetModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="panel-title"><span>🏷️</span> Adjust Budget Threshold</span>
+        <button class="btn btn-dark btn-sm" id="closeBudgetModalBtn">✕</button>
+      </div>
+      <div class="modal-body">
+        <label style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">
+          Monthly Budget Limit (INR):
+        </label>
+        <input type="number" id="budgetLimitInput" class="form-input" min="1" step="500">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-dark btn-sm" id="cancelBudgetBtn">Cancel</button>
+        <button class="btn btn-primary btn-sm" id="saveBudgetBtn">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/bundle.js"></script>
+</body>
+</html>

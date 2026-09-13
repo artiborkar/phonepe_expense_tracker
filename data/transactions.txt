@@ -28,7 +28,7 @@
 
 2026-09-01, Grocery Store, 1250
 2026-09-02, Salon Haircut, 450
-2026-09-03, Education Course, 8000
+2026-09-03, Education Course, 800
 2026-09-04, Amazon Kindle Books, 1299
 2026-09-05, Gift Purchase, 500
 2026-09-06, LPG Gas Bill Payment, 1050
@@ -55,8 +55,7 @@
 2026-09-27, Doctor Clinic Visit, 800
 2026-09-28, Mobile Accessories, 450
 2026-09-29, Fertilizer Purchase, 2000
-2026-09-30, Restaurant Anniversary Dinner, 50000
-
+2026-09-30, Restaurant Anniversary Dinner, 2000
 
 
 
